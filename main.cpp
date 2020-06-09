@@ -2,6 +2,9 @@
 #include <map>
 #include <fstream>
 #include <string>
+#include <cmath>
+
+#define TAB_LEN 4
 
 #define SUCCESS 0
 #define INCORRECT_INPUT -1
@@ -12,14 +15,19 @@ class Dictionary
 private:
     const string file_name = "./Dictionary/ItalianEnglish.txt";
     map<string, pair<string, string>> plot;
+    size_t max_base_word_len, max_gend_size;
     int add()
     {
         pair<string, pair<string, string>> aux;
         getchar();
         cout << "Enter a word on Italian:" << endl;
         getline(cin, aux.first);
+        if (aux.first.length() > max_base_word_len)
+            max_base_word_len = aux.first.length();
         cout << "Enter a gender of this word" << endl;
         getline(cin, aux.second.first);
+        if (aux.second.first.length() > max_gend_size)
+            max_gend_size = aux.second.first.length();
         cout << "Enter an English translation for this word" << endl;
         getline(cin, aux.second.second);
         plot.insert(aux);
@@ -28,8 +36,21 @@ private:
     void print_all()
     {
         cout << "===========================================" << endl;
+        size_t current_length = 0, amount_of_spaces = 0;
         for (auto begin = plot.begin(); begin != plot.end(); begin++)
-            cout << begin->first << ' ' << begin->second.first << ' ' << begin->second.second << endl;
+        {
+            cout << begin->first;
+            current_length = begin->first.length();
+            amount_of_spaces = (max_base_word_len + 1) - current_length;
+            for (size_t i = 0; i < amount_of_spaces; i++)
+                cout << ' ';
+            cout << begin->second.first;
+            current_length = begin->second.first.length();
+            amount_of_spaces = (max_gend_size + 1) - current_length;
+            for (size_t i = 0; i < amount_of_spaces; i++)
+                cout << ' ';
+            cout << begin->second.second << endl;
+        }
         cout << "===========================================" << endl;
     }
     void delete_all()
@@ -47,10 +68,15 @@ public:
             data_out.close();
             goto flag;
         }
+        max_base_word_len = 0, max_gend_size = 0;
         pair<string, pair<string, string>> aux;
         while (getline(data_in, aux.first))
         {
+            if (aux.first.length() > max_base_word_len)
+                max_base_word_len = aux.first.length();
             getline(data_in, aux.second.first);
+            if (aux.second.first.length() > max_gend_size)
+                max_gend_size = aux.second.first.length();
             getline(data_in, aux.second.second);
             plot.insert(aux);
         }
