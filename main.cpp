@@ -16,6 +16,12 @@ private:
     const string file_name = "./Dictionary/ItalianEnglish.txt";
     map<string, pair<string, string>> plot;
     size_t max_base_word_len, max_gend_size;
+    int is_correct_gender(string gender)
+    {
+        int result = gender.compare("m") && gender.compare("M");
+        result &= gender.compare("F") && gender.compare("f");
+        return result;
+    }
     int add()
     {
         pair<string, pair<string, string>> aux;
@@ -24,10 +30,18 @@ private:
         getline(cin, aux.first);
         if (aux.first.length() > max_base_word_len)
             max_base_word_len = aux.first.length();
+        flag:
+        cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "Enter a gender of this word" << endl;
         getline(cin, aux.second.first);
+        if (is_correct_gender(aux.second.first))
+        {
+            cout << "Incorrect gender. Must be M, F or M/F" << endl;
+            goto flag;
+        }
         if (aux.second.first.length() > max_gend_size)
             max_gend_size = aux.second.first.length();
+        cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "Enter an English translation for this word" << endl;
         getline(cin, aux.second.second);
         plot.insert(aux);
@@ -36,17 +50,17 @@ private:
     void print_all()
     {
         cout << "===========================================" << endl;
-        size_t current_length = 0, amount_of_spaces = 0;
+        size_t amount_of_spaces = 0;
         for (auto begin = plot.begin(); begin != plot.end(); begin++)
         {
             cout << begin->first;
-            current_length = begin->first.length();
-            amount_of_spaces = (max_base_word_len + 1) - current_length;
+            amount_of_spaces = (max_base_word_len + 1) - begin->first.length();
             for (size_t i = 0; i < amount_of_spaces; i++)
                 cout << ' ';
-            cout << begin->second.first;
-            current_length = begin->second.first.length();
-            amount_of_spaces = (max_gend_size + 1) - current_length;
+
+            for (size_t i = 0; i != begin->second.first.length(); i++)
+                cout << char(toupper(begin->second.first[i]));
+            amount_of_spaces = (max_gend_size + 1) - begin->second.first.length();
             for (size_t i = 0; i < amount_of_spaces; i++)
                 cout << ' ';
             cout << begin->second.second << endl;
@@ -56,6 +70,8 @@ private:
     void delete_all()
     {
         plot.clear();
+        max_gend_size = 0;
+        max_base_word_len = 0;
     }
 public:
     Dictionary()
@@ -106,6 +122,7 @@ public:
                 cout << "Try again" << endl;
                 break;
         }
+        cout << "+++++++++++++++++++++++++++++++++++++++++++" << endl;
         goto flag;
         return SUCCESS;
     }
