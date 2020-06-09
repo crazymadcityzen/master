@@ -31,6 +31,7 @@ private:
         if (aux.first.length() > max_base_word_len)
             max_base_word_len = aux.first.length();
         flag:
+
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "Enter a gender of this word" << endl;
         getline(cin, aux.second.first);
