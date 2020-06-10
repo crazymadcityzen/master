@@ -13,7 +13,8 @@ using namespace std;
 class Dictionary
 {
 private:
-    const string file_name = "./Dictionary/ItalianEnglish.txt";
+    const string basic_directory = "./Dictionary/";
+    string cur_file = "ItalianEnglish";
     map<string, pair<string, string>> plot;
     size_t max_base_word_len, max_gend_size;
     int is_correct_gender(string gender)
@@ -78,10 +79,10 @@ public:
     Dictionary()
     {
         flag:
-        ifstream data_in(file_name, ifstream::in);
+        ifstream data_in(basic_directory + cur_file + ".txt", ifstream::in);
         if (!data_in.is_open())
         {
-            ofstream data_out(file_name, ifstream::out);
+            ofstream data_out(basic_directory + cur_file + ".txt", ifstream::out);
             data_out.close();
             goto flag;
         }
@@ -129,7 +130,7 @@ public:
     }
     ~Dictionary()
     {
-        ofstream data_out(file_name, ifstream::out);
+        ofstream data_out(basic_directory + cur_file + ".txt", ifstream::out);
         for (auto begin = plot.begin(); begin != plot.end(); begin++)
             data_out << begin->first << endl << begin->second.first << endl << begin->second.second << endl;
         data_out.close();
