@@ -138,7 +138,7 @@ private:
         getline(cin, cur_str);
         if (is_correct_gender(cur_str))
         {
-            cout << "Incorrect gender. Must be M, F, F/M, M/F or M|F/M" << endl;
+            cout << "Incorrect gender. Must be M, F, F/M, M/F" << endl;
             goto flag;
         }
         if (cur_str.length() > max_sin_gend_len)
@@ -158,7 +158,7 @@ private:
         getline(cin, cur_str);
         if (is_correct_gender(cur_str))
         {
-            cout << "Incorrect gender. Must be M, F, F/M, M/F or M|F/M" << endl;
+            cout << "Incorrect gender. Must be M, F, F/M, M/F" << endl;
             goto flag_1;
         }
         aux.second.push_back(cur_str);
@@ -172,6 +172,29 @@ private:
         plot.insert(aux);
         return SUCCESS;
     }
+    void print_pair(string word, string gender, int is_singular)
+    {
+        size_t amount_of_spaces = 0;
+        cout << word;
+        if (is_singular)
+            amount_of_spaces = (max_sing_len + 1) - word.length();
+        else
+            amount_of_spaces = (max_plural_len + 1) - word.length();
+        for (size_t i = 0; i < amount_of_spaces; i++)
+            cout << ' ';
+        cout << "| ";
+
+        for (size_t i = 0; i != gender.length(); i++)
+            cout << char(toupper(gender[i]));
+        if (is_singular)
+        {
+            amount_of_spaces = (max_sin_gend_len + 1) - gender.length();
+            for (size_t i = 0; i < amount_of_spaces; i++)
+                cout << ' ';
+            if (is_singular)
+                cout << "| ";
+        }
+    }
     void print_all()
     {
         cout << "===========================================" << endl;
@@ -184,27 +207,8 @@ private:
                 cout << ' ';
             cout << "|| ";
 
-            cout << begin->second[0];
-            amount_of_spaces = (max_sing_len + 1) - begin->second[0].length();
-            for (size_t i = 0; i < amount_of_spaces; i++)
-                cout << ' ';
-            cout << "| ";
-
-            for (size_t i = 0; i != begin->second[1].length(); i++)
-                cout << char(toupper(begin->second[1][i]));
-            amount_of_spaces = (max_sin_gend_len + 1) - begin->second[1].length();
-            for (size_t i = 0; i < amount_of_spaces; i++)
-                cout << ' ';
-            cout << "| ";
-
-            cout << begin->second[2];
-            amount_of_spaces = (max_plural_len + 1) - begin->second[2].length();
-            for (size_t i = 0; i < amount_of_spaces; i++)
-                cout << ' ';
-            cout << "| ";
-
-            for (size_t i = 0; i != begin->second[3].length(); i++)
-                cout << char(toupper(begin->second[3][i]));
+            print_pair(begin->second[0], begin->second[1], 1);
+            print_pair(begin->second[2], begin->second[3], 0);
             cout << endl;
         }
         cout << "===========================================" << endl;
