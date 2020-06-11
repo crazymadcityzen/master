@@ -19,7 +19,7 @@ private:
     const string filenames = "./Dictionary/filenames.txt";
     vector<string> languages;
     map<string, vector<string>> plot;
-    size_t max_sing_len, max_f_gend_size, max_s_gend_size, max_plural_len;
+    size_t max_trans_len, max_sing_len, max_plural_len, max_sin_gend_len;
     void save_lang_data(string file_name)
     {
         ofstream data_out(file_name, ifstream::out);
@@ -34,27 +34,27 @@ private:
     void files_lang_rewrite(string filename)
     {
         ifstream data_in(filename, ifstream::in);
-        max_sing_len = 0, max_f_gend_size = 0, max_plural_len = 0, max_s_gend_size = 0;
+        max_trans_len = 0, max_sing_len = 0, max_sin_gend_len = 0, max_plural_len = 0;
         pair<string, vector<string>> aux;
         string cur_str = "";
         while (getline(data_in, aux.first))
         {
-            if (aux.first.length() > max_sing_len)
-                max_sing_len = aux.first.length();
+            if (aux.first.length() > max_trans_len)
+                max_trans_len = aux.first.length();
 
             getline(data_in, cur_str);
-            if (cur_str.length() > max_f_gend_size)
-                max_f_gend_size = cur_str.length();
+            if (cur_str.length() > max_sing_len)
+                max_sing_len = cur_str.length();
+            aux.second.push_back(cur_str);
+
+            getline(data_in, cur_str);
+            if (cur_str.length() > max_sin_gend_len)
+                max_sin_gend_len = cur_str.length();
             aux.second.push_back(cur_str);
 
             getline(data_in, cur_str);
             if (cur_str.length() > max_plural_len)
                 max_plural_len = cur_str.length();
-            aux.second.push_back(cur_str);
-
-            getline(data_in, cur_str);
-            if (cur_str.length() > max_s_gend_size)
-                max_s_gend_size = cur_str.length();
             aux.second.push_back(cur_str);
 
             getline(data_in, cur_str);
@@ -128,10 +128,10 @@ private:
         string cur_str = "";
         getchar();
         cout << "Enter a singular form of the word on the language u learn words on:" << endl;
-        getline(cin, aux.first);
-        if (aux.first.length() > max_sing_len)
-            max_sing_len = aux.first.length();
-
+        getline(cin, cur_str);
+        if (cur_str.length() > max_sing_len)
+            max_sing_len = cur_str.length();
+        aux.second.push_back(cur_str);
         flag:
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "Enter a gender of the singular from of this word" << endl;
@@ -141,8 +141,8 @@ private:
             cout << "Incorrect gender. Must be M, F, F/M, M/F or M|F/M" << endl;
             goto flag;
         }
-        if (cur_str.length() > max_f_gend_size)
-            max_f_gend_size = cur_str.length();
+        if (cur_str.length() > max_sin_gend_len)
+            max_sin_gend_len = cur_str.length();
         aux.second.push_back(cur_str);
 
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
@@ -161,14 +161,13 @@ private:
             cout << "Incorrect gender. Must be M, F, F/M, M/F or M|F/M" << endl;
             goto flag_1;
         }
-        if (cur_str.length() > max_s_gend_size)
-            max_s_gend_size = cur_str.length();
         aux.second.push_back(cur_str);
 
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "Enter a translation for singular form of this word on the picked language" << endl;
-        getline(cin, cur_str);
-        aux.second.push_back(cur_str);
+        getline(cin, aux.first);
+        if (aux.first.length() > max_trans_len)
+            max_trans_len = aux.first.length();
 
         plot.insert(aux);
         return SUCCESS;
@@ -180,38 +179,43 @@ private:
         for (auto begin = plot.begin(); begin != plot.end(); begin++)
         {
             cout << begin->first;
-            amount_of_spaces = (max_sing_len + 1) - begin->first.length();
+            amount_of_spaces = (max_trans_len + 1) - begin->first.length();
             for (size_t i = 0; i < amount_of_spaces; i++)
                 cout << ' ';
+            cout << "|| ";
 
-            for (size_t i = 0; i != begin->second[0].length(); i++)
-                cout << char(toupper(begin->second[0][i]));
-            amount_of_spaces = (max_f_gend_size + 1) - begin->second[0].length();
+            cout << begin->second[0];
+            amount_of_spaces = (max_sing_len + 1) - begin->second[0].length();
             for (size_t i = 0; i < amount_of_spaces; i++)
                 cout << ' ';
+            cout << "| ";
 
-            cout << begin->second[1];
-            amount_of_spaces = (max_plural_len + 1) - begin->second[1].length();
+            for (size_t i = 0; i != begin->second[1].length(); i++)
+                cout << char(toupper(begin->second[1][i]));
+            amount_of_spaces = (max_sin_gend_len + 1) - begin->second[1].length();
             for (size_t i = 0; i < amount_of_spaces; i++)
                 cout << ' ';
+            cout << "| ";
 
-            for (size_t i = 0; i != begin->second[2].length(); i++)
-                cout << char(toupper(begin->second[2][i]));
-            amount_of_spaces = (max_s_gend_size + 1) - begin->second[2].length();
+            cout << begin->second[2];
+            amount_of_spaces = (max_plural_len + 1) - begin->second[2].length();
             for (size_t i = 0; i < amount_of_spaces; i++)
                 cout << ' ';
+            cout << "| ";
 
-            cout << begin->second[3] << endl;
+            for (size_t i = 0; i != begin->second[3].length(); i++)
+                cout << char(toupper(begin->second[3][i]));
+            cout << endl;
         }
         cout << "===========================================" << endl;
     }
     void delete_all()
     {
         plot.clear();
-        max_f_gend_size = 0;
         max_sing_len = 0;
+        max_trans_len = 0;
+        max_sin_gend_len = 0;
         max_plural_len = 0;
-        max_s_gend_size = 0;
     }
 public:
     Dictionary()
