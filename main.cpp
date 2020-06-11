@@ -18,12 +18,59 @@ private:
     string cur_file = "";
     const string filenames = "./Dictionary/filenames.txt";
     vector<string> languages;
-    map<string, pair<string, string>> plot;
-    size_t max_base_word_len, max_gend_size;
+    map<string, vector<string>> plot;
+    size_t max_sing_len, max_f_gend_size, max_s_gend_size, max_plural_len;
+    void save_lang_data(string file_name)
+    {
+        ofstream data_out(file_name, ifstream::out);
+        for (auto begin = plot.begin(); begin != plot.end(); begin++)
+        {
+            data_out << begin->first << endl;
+            for(size_t i = 0; i != begin->second.size(); i++)
+                data_out << begin->second[i] << endl;
+        }
+        data_out.close();
+    }
+    void files_lang_rewrite(string filename)
+    {
+        ifstream data_in(filename, ifstream::in);
+        max_sing_len = 0, max_f_gend_size = 0, max_plural_len = 0, max_s_gend_size = 0;
+        pair<string, vector<string>> aux;
+        string cur_str = "";
+        while (getline(data_in, aux.first))
+        {
+            if (aux.first.length() > max_sing_len)
+                max_sing_len = aux.first.length();
+
+            getline(data_in, cur_str);
+            if (cur_str.length() > max_f_gend_size)
+                max_f_gend_size = cur_str.length();
+            aux.second.push_back(cur_str);
+
+            getline(data_in, cur_str);
+            if (cur_str.length() > max_plural_len)
+                max_plural_len = cur_str.length();
+            aux.second.push_back(cur_str);
+
+            getline(data_in, cur_str);
+            if (cur_str.length() > max_s_gend_size)
+                max_s_gend_size = cur_str.length();
+            aux.second.push_back(cur_str);
+
+            getline(data_in, cur_str);
+            aux.second.push_back(cur_str);
+
+            plot.insert(aux);
+            aux.second.clear();
+        }
+        data_in.close();
+    }
     int is_correct_gender(string gender)
     {
-        int result = gender.compare("m") && gender.compare("M");
-        result &= gender.compare("F") && gender.compare("f") && gender.compare("-");
+        for (size_t i = 0; i != gender.size(); i++)
+            gender[i] = char(toupper(gender[i]));
+        int result = gender.compare("F") && gender.compare("M");
+        result &= gender.compare("M/F") && gender.compare("F/M");
         return result;
     }
     int add_language()
@@ -68,52 +115,61 @@ private:
             goto flag;
         }
 
-        ofstream data_out(basic_directory + cur_file + ".txt", ifstream::out);
-        for (auto begin = plot.begin(); begin != plot.end(); begin++)
-            data_out << begin->first << endl << begin->second.first << endl << begin->second.second << endl;
-        data_out.close();
+        save_lang_data(basic_directory + cur_file + ".txt");
         plot.clear();
 
         cur_file = languages[au - 1];
 
-        ifstream data_in(basic_directory + cur_file + ".txt", ifstream::in);
-        max_base_word_len = 0, max_gend_size = 0;
-        pair<string, pair<string, string>> aux;
-        while (getline(data_in, aux.first))
-        {
-            if (aux.first.length() > max_base_word_len)
-                max_base_word_len = aux.first.length();
-            getline(data_in, aux.second.first);
-            if (aux.second.first.length() > max_gend_size)
-                max_gend_size = aux.second.first.length();
-            getline(data_in, aux.second.second);
-            plot.insert(aux);
-        }
-        data_in.close();
+        files_lang_rewrite(basic_directory + cur_file + ".txt");
     }
     int add()
     {
-        pair<string, pair<string, string>> aux;
+        pair<string, vector<string>> aux;
+        string cur_str = "";
         getchar();
-        cout << "Enter a word on the language u learn words on:" << endl;
+        cout << "Enter a singular form of the word on the language u learn words on:" << endl;
         getline(cin, aux.first);
-        if (aux.first.length() > max_base_word_len)
-            max_base_word_len = aux.first.length();
-        flag:
+        if (aux.first.length() > max_sing_len)
+            max_sing_len = aux.first.length();
 
+        flag:
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-        cout << "Enter a gender of this word" << endl;
-        getline(cin, aux.second.first);
-        if (is_correct_gender(aux.second.first))
+        cout << "Enter a gender of the singular from of this word" << endl;
+        getline(cin, cur_str);
+        if (is_correct_gender(cur_str))
         {
-            cout << "Incorrect gender. Must be M, F or M/F" << endl;
+            cout << "Incorrect gender. Must be M, F, F/M, M/F or M|F/M" << endl;
             goto flag;
         }
-        if (aux.second.first.length() > max_gend_size)
-            max_gend_size = aux.second.first.length();
+        if (cur_str.length() > max_f_gend_size)
+            max_f_gend_size = cur_str.length();
+        aux.second.push_back(cur_str);
+
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-        cout << "Enter a translation for this word on the picked language" << endl;
-        getline(cin, aux.second.second);
+        cout << "Enter a plural form of the word on the language u learn words on:" << endl;
+        getline(cin, cur_str);
+        if (cur_str.length() > max_plural_len)
+            max_plural_len = cur_str.length();
+        aux.second.push_back(cur_str);
+
+        flag_1:
+        cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+        cout << "Enter a gender of the plural form of this word" << endl;
+        getline(cin, cur_str);
+        if (is_correct_gender(cur_str))
+        {
+            cout << "Incorrect gender. Must be M, F, F/M, M/F or M|F/M" << endl;
+            goto flag_1;
+        }
+        if (cur_str.length() > max_s_gend_size)
+            max_s_gend_size = cur_str.length();
+        aux.second.push_back(cur_str);
+
+        cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+        cout << "Enter a translation for singular form of this word on the picked language" << endl;
+        getline(cin, cur_str);
+        aux.second.push_back(cur_str);
+
         plot.insert(aux);
         return SUCCESS;
     }
@@ -124,24 +180,38 @@ private:
         for (auto begin = plot.begin(); begin != plot.end(); begin++)
         {
             cout << begin->first;
-            amount_of_spaces = (max_base_word_len + 1) - begin->first.length();
+            amount_of_spaces = (max_sing_len + 1) - begin->first.length();
             for (size_t i = 0; i < amount_of_spaces; i++)
                 cout << ' ';
 
-            for (size_t i = 0; i != begin->second.first.length(); i++)
-                cout << char(toupper(begin->second.first[i]));
-            amount_of_spaces = (max_gend_size + 1) - begin->second.first.length();
+            for (size_t i = 0; i != begin->second[0].length(); i++)
+                cout << char(toupper(begin->second[0][i]));
+            amount_of_spaces = (max_f_gend_size + 1) - begin->second[0].length();
             for (size_t i = 0; i < amount_of_spaces; i++)
                 cout << ' ';
-            cout << begin->second.second << endl;
+
+            cout << begin->second[1];
+            amount_of_spaces = (max_plural_len + 1) - begin->second[1].length();
+            for (size_t i = 0; i < amount_of_spaces; i++)
+                cout << ' ';
+
+            for (size_t i = 0; i != begin->second[2].length(); i++)
+                cout << char(toupper(begin->second[2][i]));
+            amount_of_spaces = (max_s_gend_size + 1) - begin->second[2].length();
+            for (size_t i = 0; i < amount_of_spaces; i++)
+                cout << ' ';
+
+            cout << begin->second[3] << endl;
         }
         cout << "===========================================" << endl;
     }
     void delete_all()
     {
         plot.clear();
-        max_gend_size = 0;
-        max_base_word_len = 0;
+        max_f_gend_size = 0;
+        max_sing_len = 0;
+        max_plural_len = 0;
+        max_s_gend_size = 0;
     }
 public:
     Dictionary()
@@ -161,28 +231,16 @@ public:
             add_language();
         cur_file = languages[0];
 
-        flag:
         ifstream data_in(basic_directory + cur_file + ".txt", ifstream::in);
         if (!data_in.is_open())
         {
             ofstream data_out(basic_directory + cur_file + ".txt", ifstream::out);
-            data_out.close();
-            goto flag;
+            data_out.close();    
         }
-        max_base_word_len = 0, max_gend_size = 0;
-        pair<string, pair<string, string>> aux;
-        while (getline(data_in, aux.first))
-        {
-            if (aux.first.length() > max_base_word_len)
-                max_base_word_len = aux.first.length();
-            getline(data_in, aux.second.first);
-            if (aux.second.first.length() > max_gend_size)
-                max_gend_size = aux.second.first.length();
-            getline(data_in, aux.second.second);
-            plot.insert(aux);
-        }
+        else
+            data_in.close();
+        files_lang_rewrite(basic_directory + cur_file + ".txt");
         file_in.close();
-        data_in.close();
     }
     int Menu()
     {
@@ -224,10 +282,7 @@ public:
     }
     ~Dictionary()
     {
-        ofstream data_out(basic_directory + cur_file + ".txt", ifstream::out);
-        for (auto begin = plot.begin(); begin != plot.end(); begin++)
-            data_out << begin->first << endl << begin->second.first << endl << begin->second.second << endl;
-        data_out.close();
+        save_lang_data(basic_directory + cur_file + ".txt");
         ofstream file_out(filenames, ifstream::out);
         for (size_t i = 0; i != languages.size(); i++)
             if (languages[i].compare(cur_file) == 0)
